@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0] - 2026-01-29
+
+### Added
+
+- Basic user configuration toml file
+- Library downloading dependent on user-defined version
+
 ## [0.1.2] - 2026-01-21
 
 ### Added

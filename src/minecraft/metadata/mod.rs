@@ -4,11 +4,10 @@ pub mod arguments;
 pub mod library;
 pub mod rule;
 
-pub use self::rule::{Arch, Environment, Features, OS, ResolvedArguments, Rule};
+pub use self::rule::{Arch, Environment, Features, OS, ResolvedArguments, Rule, rules_allow};
 
 use arguments::Arguments;
 use library::Library;
-use std::fmt;
 
 pub struct Metadata {
     pub id: String,
@@ -95,31 +94,5 @@ impl Metadata {
             arguments: arguments::parse(&json)?,
             libraries: library::parse_libraries(&json)?,
         })
-    }
-}
-
-impl fmt::Debug for Metadata {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let lib_summary = library::summarize_libraries(&self.libraries);
-
-        f.debug_struct("Metadata")
-            .field("id", &self.id)
-            .field("main_class", &self.main_class)
-            .field(
-                "java_version",
-                &format!(
-                    "{} (major version {})",
-                    self.java_version.component, self.java_version.major_version
-                ),
-            )
-            // .field("arguments", &self.arguments)
-            .field(
-                "libraries",
-                &format!("{} ({})", self.libraries.len(), lib_summary),
-            )
-            .field("client_downloads", &self.client_download)
-            .field("asset_index", &self.asset_index)
-            .field("compliance_level", &self.compliance_level.unwrap())
-            .finish()
     }
 }

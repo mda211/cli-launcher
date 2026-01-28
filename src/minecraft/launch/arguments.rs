@@ -1,5 +1,5 @@
 use crate::minecraft::metadata::arguments;
-use crate::minecraft::metadata::{Environment, Features, ResolvedArguments};
+use crate::minecraft::metadata::{Environment, Features, ResolvedArguments, rules_allow};
 
 pub fn send_arguments(
     arguments: &arguments::Arguments,
@@ -24,7 +24,7 @@ fn resolve_argument_list(
             arguments::Argument::Simple(s) => out.push(s.clone()),
 
             arguments::Argument::RuleBased { rules, value } => {
-                let include = rules.iter().all(|r| r.matches(environment, features));
+                let include = rules_allow(rules, environment, Some(features));
 
                 if include {
                     match value {

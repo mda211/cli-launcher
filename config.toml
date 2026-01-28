@@ -1,0 +1,8 @@
+[user]
+username = "..."
+version = "1.19.1"
+uuid = "..."
+
+[directories]
+java = "..."
+instance = "./instance"

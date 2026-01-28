@@ -1,6 +1,7 @@
+mod config;
 mod minecraft;
 
-use minecraft::launch::construct_arguments;
+use config::Config;
 use minecraft::manifest::{VersionManifest, fetch_manifest, get_version_info};
 use minecraft::metadata::Metadata;
 
@@ -10,9 +11,11 @@ use crate::minecraft::metadata::{Arch, Environment, Features, OS};
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let manifest: VersionManifest = fetch_manifest().await?;
 
+    let config = Config::load("config.toml")?;
+    let version_id: &str = &config.user.version;
+
     let mut version_url = String::new();
 
-    let version_id = "1.21.11";
     if let Some(version) = get_version_info(&manifest, version_id) {
         println!("Found metadata for version {}: {}", version_id, version.url);
         version_url = version.url.clone();
@@ -32,12 +35,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let environment = Environment {
-        os: OS::Linux,
+        os: OS::Windows,
         arch: Arch::X64,
     };
 
-    // println!("{metadata:#?}");
-    construct_arguments(&metadata, &environment, &features);
+    minecraft::launch::construct_arguments(&metadata, &environment, &features).await;
 
     Ok(())
 }

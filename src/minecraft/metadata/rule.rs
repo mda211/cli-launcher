@@ -17,7 +17,7 @@ pub struct OperatingSystem {
     pub arch: Option<Arch>,
 }
 
-#[derive(Debug, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Deserialize, Clone, Copy, PartialEq)]
 pub enum OS {
     #[serde(rename = "windows")]
     Windows,
@@ -27,7 +27,7 @@ pub enum OS {
     Linux,
 }
 
-#[derive(Debug, Deserialize, PartialEq)]
+#[derive(Debug, Deserialize, Clone, Copy, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum Arch {
     X86,
@@ -64,7 +64,7 @@ pub struct ResolvedArguments {
 }
 
 impl Rule {
-    pub fn matches(&self, environment: &Environment, features: &Features) -> bool {
+    pub fn applies(&self, environment: &Environment, features: Option<&Features>) -> bool {
         if let Some(os_rule) = &self.os {
             if let Some(name) = &os_rule.name {
                 if *name != environment.os {
@@ -79,27 +79,46 @@ impl Rule {
             }
         }
 
-        if let Some(f) = &self.features {
-            if f.is_demo_user && !features.is_demo_user {
+        if let (Some(rule_features), Some(active_features)) = (&self.features, features) {
+            if rule_features.is_demo_user && !active_features.is_demo_user {
                 return false;
             }
-            if f.has_custom_resolution && !features.has_custom_resolution {
+            if rule_features.has_custom_resolution && !active_features.has_custom_resolution {
                 return false;
             }
-            if f.has_quick_plays_support && !features.has_quick_plays_support {
+            if rule_features.has_quick_plays_support && !active_features.has_quick_plays_support {
                 return false;
             }
-            if f.is_quick_play_singleplayer && !features.is_quick_play_singleplayer {
+            if rule_features.is_quick_play_singleplayer
+                && !active_features.is_quick_play_singleplayer
+            {
                 return false;
             }
-            if f.is_quick_play_multiplayer && !features.is_quick_play_multiplayer {
+            if rule_features.is_quick_play_multiplayer && !active_features.is_quick_play_multiplayer
+            {
                 return false;
             }
-            if f.is_quick_play_realms && !features.is_quick_play_realms {
+            if rule_features.is_quick_play_realms && !active_features.is_quick_play_realms {
                 return false;
             }
         }
 
         true
     }
+}
+
+pub fn rules_allow(rules: &[Rule], environment: &Environment, features: Option<&Features>) -> bool {
+    if rules.is_empty() {
+        return true;
+    }
+
+    let mut allowed = false;
+
+    for rule in rules {
+        if rule.applies(environment, features) {
+            allowed = rule.action == "allow";
+        }
+    }
+
+    allowed
 }
