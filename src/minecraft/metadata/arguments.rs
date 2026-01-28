@@ -1,3 +1,4 @@
+use crate::minecraft::metadata::Rule;
 use serde::Deserialize;
 
 #[derive(Debug)]
@@ -23,14 +24,6 @@ pub enum Argument {
 pub enum ArgValue {
     Single(String),
     Multiple(Vec<String>),
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Rule {
-    pub action: String,
-
-    #[serde(default)]
-    pub features: Option<Features>,
 }
 
 #[derive(Debug, Deserialize)]

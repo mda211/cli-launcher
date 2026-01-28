@@ -2,6 +2,9 @@
 
 pub mod arguments;
 pub mod library;
+pub mod rule;
+
+pub use self::rule::{Arch, Environment, Features, OS, ResolvedArguments, Rule};
 
 use arguments::Arguments;
 use library::Library;
