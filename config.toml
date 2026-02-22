@@ -1,8 +1,13 @@
 [user]
-username = "..."
-version = "1.19.1"
-uuid = "..."
+username = "" # Minecraft ssername
+version = "1.21.11" # Minecraft version
+uuid = "" # Minecraft UUID
+
+# UUID can be generated from username using Mojang API at https://api.mojang.com/users/profiles/minecraft/{username}
 
 [directories]
-java = "..."
+java = "" # Java executable path
 instance = "./instance"
+
+[launch]
+features = { is_demo_user = false, has_custom_resolution = false, has_quick_plays_support = false, is_quick_play_singleplayer = false, is_quick_play_multiplayer = false, is_quick_play_realms = false }

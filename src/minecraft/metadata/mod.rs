@@ -4,13 +4,15 @@ pub mod arguments;
 pub mod library;
 pub mod rule;
 
-pub use self::rule::{Arch, Environment, Features, OS, ResolvedArguments, Rule, rules_allow};
+pub use self::rule::{Features, ResolvedArguments, Rule, rules_allow};
+pub use crate::minecraft::manifest::VersionChannel;
 
 use arguments::Arguments;
 use library::Library;
 
 pub struct Metadata {
     pub id: String,
+    pub r#type: Option<VersionChannel>,
 
     pub main_class: String,
     pub java_version: JavaVersion,
@@ -93,6 +95,12 @@ impl Metadata {
 
             arguments: arguments::parse(&json)?,
             libraries: library::parse_libraries(&json)?,
+
+            r#type: json["type"].as_str().map(|s| match s {
+                "release" => VersionChannel::Release,
+                "snapshot" => VersionChannel::Snapshot,
+                _ => VersionChannel::Unknown,
+            }),
         })
     }
 }

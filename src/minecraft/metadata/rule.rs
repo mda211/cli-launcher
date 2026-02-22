@@ -1,12 +1,19 @@
-use serde::Deserialize;
-
+use crate::minecraft::launch::environment::{Arch, Environment, OS};
+use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize)]
 pub struct Rule {
-    pub action: String,
+    pub action: RuleAction,
     #[serde(default)]
     pub os: Option<OperatingSystem>,
     #[serde(default)]
     pub features: Option<Features>,
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+pub enum RuleAction {
+    Allow,
+    Disallow,
 }
 
 #[derive(Debug, Deserialize)]
@@ -17,31 +24,7 @@ pub struct OperatingSystem {
     pub arch: Option<Arch>,
 }
 
-#[derive(Debug, Deserialize, Clone, Copy, PartialEq)]
-pub enum OS {
-    #[serde(rename = "windows")]
-    Windows,
-    #[serde(rename = "osx")]
-    MacOS,
-    #[serde(rename = "linux")]
-    Linux,
-}
-
-#[derive(Debug, Deserialize, Clone, Copy, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum Arch {
-    X86,
-    X64,
-    Arm64,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct Environment {
-    pub os: OS,
-    pub arch: Arch,
-}
-
-#[derive(Debug, Deserialize, Default)]
+#[derive(Debug, Deserialize, Serialize, Default)]
 pub struct Features {
     #[serde(default)]
     pub is_demo_user: bool,
@@ -116,7 +99,7 @@ pub fn rules_allow(rules: &[Rule], environment: &Environment, features: Option<&
 
     for rule in rules {
         if rule.applies(environment, features) {
-            allowed = rule.action == "allow";
+            allowed = rule.action == RuleAction::Allow;
         }
     }
 

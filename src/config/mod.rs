@@ -1,30 +1,24 @@
+mod directories;
+mod launch;
+mod user;
+
+pub use directories::DirectoryConfig;
+pub use launch::LaunchConfig;
+pub use user::UserConfig;
+
 use serde::{Deserialize, Serialize};
-use std::fs;
-use std::path::Path;
+use std::{fs, path::Path};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
-    pub user: User,
-    pub directories: Directories,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct User {
-    pub username: String,
-    pub version: String,
-    pub uuid: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Directories {
-    pub java: String,
-    pub instance: String,
+    pub user: UserConfig,
+    pub directories: DirectoryConfig,
+    pub launch: LaunchConfig,
 }
 
 impl Config {
     pub fn load(path: impl AsRef<Path>) -> Result<Self, Box<dyn std::error::Error>> {
         let content = fs::read_to_string(path)?;
-        let config = toml::from_str(&content)?;
-        Ok(config)
+        Ok(toml::from_str(&content)?)
     }
 }

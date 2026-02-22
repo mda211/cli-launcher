@@ -1,11 +1,11 @@
+#[allow(unused)]
 mod config;
 mod minecraft;
 
 use config::Config;
+use minecraft::auth;
 use minecraft::manifest::{VersionManifest, fetch_manifest, get_version_info};
 use minecraft::metadata::Metadata;
-
-use crate::minecraft::metadata::{Arch, Environment, Features, OS};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -13,6 +13,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let config = Config::load("config.toml")?;
     let version_id: &str = &config.user.version;
+    let features = &config.launch.features;
+
+    println!("{:?}", features);
 
     let mut version_url = String::new();
 
@@ -25,21 +28,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let metadata = Metadata::load(&version_url).await?;
 
-    let features = Features {
-        is_demo_user: false,
-        has_custom_resolution: false,
-        has_quick_plays_support: false,
-        is_quick_play_singleplayer: false,
-        is_quick_play_multiplayer: false,
-        is_quick_play_realms: false,
-    };
+    minecraft::launch::construct_arguments(&metadata, &features, &config).await;
 
-    let environment = Environment {
-        os: OS::Windows,
-        arch: Arch::X64,
-    };
+    println!("------------------------------");
 
-    minecraft::launch::construct_arguments(&metadata, &environment, &features).await;
+    let auth_result = auth::authenticate().await?;
+    println!("Got authorization code: {}", auth_result.code);
 
     Ok(())
 }

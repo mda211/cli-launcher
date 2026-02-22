@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use serde::Deserialize;
+use std::fmt;
 
 #[derive(Deserialize, Debug)]
 pub struct VersionManifest {
@@ -24,11 +25,21 @@ pub struct IndexedVersion {
 
 #[derive(Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "lowercase")]
-enum VersionChannel {
+pub enum VersionChannel {
     Release,
     Snapshot,
     #[serde(other)]
     Unknown,
+}
+
+impl fmt::Display for VersionChannel {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            VersionChannel::Release => write!(f, "release"),
+            VersionChannel::Snapshot => write!(f, "snapshot"),
+            VersionChannel::Unknown => write!(f, "unknown"),
+        }
+    }
 }
 
 pub async fn fetch_manifest() -> Result<VersionManifest, Box<dyn std::error::Error>> {
